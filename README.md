@@ -1,3 +1,6 @@
+# New feature from SCNU
+SCNU add a online-dedup system on PMFS, though the performance of dedup system barely satisfactory, it can work transparently.
+
 # Porting PMFS to the latest Linux kernel
 
 ## Introduction
