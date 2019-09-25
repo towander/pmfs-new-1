@@ -99,14 +99,6 @@ struct dedupnode *alloc_dedupnode(struct super_block *sb){
 	struct dedupnode *dnode;
 	struct list_head *p;
 	struct dedup_index *dindex = DINDEX;
-	// unsigned long flags;
-
-	// if(filesystem_restart){
-	// 	filesystem_restart = false;
-	// 	list_splice(&dindex->hma_writing, &dindex->hma_unused);
-	// }
-
-	// spin_lock_irqsave(&dedup_index_lock, flags);
 
 	if(list_empty(&dindex->hma_unused))
 		new_unused_dedupnode(sb);
@@ -115,9 +107,6 @@ struct dedupnode *alloc_dedupnode(struct super_block *sb){
 	dnode = list_entry(p, struct dedupnode, list);
 	dnode->flag = 0;
 	list_move_tail(p, &dindex->hma_head);
-	// list_move_tail(p, &dindex->hma_writing);
-
-	// spin_unlock_irqrestore(&dedup_index_lock, flags);
 	return dnode;
 }
 
@@ -135,9 +124,6 @@ bool free_dedupnode(struct super_block *sb, void *dedupnode){
 		
 	dnode->flag = 0;
 	atomic_dec(&dnode->atomic_ref_count);
-	// pmfs_free_block(sb, dnode->blocknr, PMFS_BLOCK_TYPE_4K);
-	// rb_erase(&dnode->node, droot);
-	// list_move_tail(&dnode->list, &dindex->hma_unused);
 	return true;
 }
 
@@ -196,10 +182,6 @@ struct dedupnode *dedupnode_tree_update(struct super_block *sb
 	struct rb_node *parent = NULL;
 	struct dedupnode *dnode_entry;
 	long result;
-	// unsigned long flags;
-
-	// printk("tree update 1");
-	// printk("dnode_new->hashval:%ld", dnode_new->hashval);
 
 	while(*entry_node){
 		parent = *entry_node;
@@ -218,17 +200,13 @@ struct dedupnode *dedupnode_tree_update(struct super_block *sb
 			else if(result > 0)
 				entry_node = &(*entry_node)->rb_right;
 			else{
-				// printk("dnode_entry:%u", dnode_entry->count);
-				// printk("hit in rbtree");
 				return dnode_entry;
 			}
 		}
 	}
 
-	// spin_lock_irqsave(&dnode_rbtree_lock, flags);
 	rb_link_node(&dnode_new->node, parent, entry_node);
 	rb_insert_color(&dnode_new->node, droot);
-	// spin_unlock_irqrestore(&dnode_rbtree_lock, flags);
 
 	return NULL;
 }
