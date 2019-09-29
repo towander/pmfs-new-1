@@ -88,13 +88,21 @@ struct dedupnode *alloc_dedupnode(struct super_block *sb){
 	struct list_head *p;
 	struct dedup_index *dindex = DINDEX;
 
+	//list_lock
+	rcu_read_lock();
 	if(list_empty(&dindex->hma_unused))
 		new_unused_dedupnode(sb);
-	
+	rcu_read_unlock();
+	//list_unlock
+
+	//list_lock
+	rcu_read_lock();
 	p = dindex->hma_unused.next;
 	dnode = list_entry(p, struct dedupnode, list);
 	dnode->flag = 0;
 	list_move_tail(p, &dindex->hma_head);
+	rcu_read_unlock();
+	//list_unlock
 	return dnode;
 }
 
@@ -811,7 +819,8 @@ ssize_t pmfs_xip_file_write(struct file *filp, const char __user *buf,
 		// chunk divide equally
 		block_len = (4096-dedup_offset)<i?(4096-dedup_offset):i;
 		rnode = refnode_insert(sb, inode->i_ino, j+start_blk);
-		
+		dnode = alloc_dedupnode(sb);
+
 		if(rnode->dnode){
 			dnode_entry = rnode->dnode;
 			// memcpy(xmem, pmfs_get_block(sb, dnode_entry->blocknr<<PAGE_SHIFT), dnode_entry->length);
@@ -829,7 +838,6 @@ ssize_t pmfs_xip_file_write(struct file *filp, const char __user *buf,
 				// printk("udpate in-place!");
 			}
 
-			dnode = alloc_dedupnode(sb);
 			// dnode->flag = 0;
 			dnode->length = 4096;
 			// dnode->length = dnode_entry->length>(dedup_offset+block_len)?dnode_entry->length:(dedup_offset+block_len);
@@ -838,7 +846,6 @@ ssize_t pmfs_xip_file_write(struct file *filp, const char __user *buf,
 			// new_dnode_status = true;
 		}
 		else{
-			dnode = alloc_dedupnode(sb);
 			// dnode->flag = 0;
 			dnode->length = dedup_offset+block_len;
 			// dnode->count = 1;
