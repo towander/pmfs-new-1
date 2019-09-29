@@ -30,6 +30,7 @@
 #define DINDEX pmfs_get_block(sb, DEDUP_HEAD<<PAGE_SHIFT)
 DEFINE_SPINLOCK(dedup_index_lock);
 DEFINE_SPINLOCK(dnode_rbtree_lock);
+DEFINE_SPINLOCK(BIG_LOCK);
 
 struct list_head *dedupnode_allocation_pos = NULL;
 short dnode_hit = 0;
@@ -313,7 +314,6 @@ bool short_hash(size_t *hashing, char *xmem, size_t len)
 }
 
 bool strength_hash(char *result, char* data, size_t len){
-
 	/* md5 compute */
 	// struct shash_desc *desc;
 	// desc = kmalloc(sizeof(*desc), GFP_KERNEL);
@@ -345,7 +345,9 @@ bool strength_hash(char *result, char* data, size_t len){
 	/*weak hash*/
 
 	// memcpy(result+16,data,16);
+	rcu_read_lock();
 	MurmurHash3_x64_128(data, (int)len, 41, result);
+	rcu_read_unlock();
 	
 	return true;
 }
