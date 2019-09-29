@@ -31,7 +31,6 @@
 DEFINE_SPINLOCK(dedup_index_lock);
 DEFINE_SPINLOCK(dnode_rbtree_lock);
 
-
 struct list_head *dedupnode_allocation_pos = NULL;
 short dnode_hit = 0;
 bool rnode_hit = false;
@@ -954,6 +953,7 @@ ssize_t pmfs_xip_file_write(struct file *filp, const char __user *buf,
 			dnode_hit--;
 			// printk("dnode is new!");
 			pmfs_new_block(sb, &dnode->blocknr, PMFS_BLOCK_TYPE_4K, 1);
+			pmfs_xip_mem_protect(sb, dnode->blocknr<<PAGE_SHIFT), dnode->length, 1);
 			memcpy(pmfs_get_block(sb, dnode->blocknr<<PAGE_SHIFT), xmem, dnode->length);
 			memcpy_to_nvmm((char *)xmem, 0, buf, dnode->length);
 			memcpy_to_nvmm((char *)xmem, 0, buf, dnode->length);
@@ -965,6 +965,7 @@ ssize_t pmfs_xip_file_write(struct file *filp, const char __user *buf,
 			memcpy_to_nvmm((char *)xmem, 0, buf, dnode->length);
 			memcpy_to_nvmm((char *)xmem, 0, buf, dnode->length);
 			memcpy_to_nvmm((char *)xmem, 0, buf, dnode->length);
+			pmfs_xip_mem_protect(sb, dnode->blocknr<<PAGE_SHIFT), dnode->length, 0);
 		}
 		dnode->flag = 1;
 		// list_move_tail(&dnode->list, &dindex->hma_head);
