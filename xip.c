@@ -353,9 +353,13 @@ bool strength_hash(char *result, char* data, size_t len){
 	/*weak hash*/
 
 	// memcpy(result+16,data,16);
-	rcu_read_lock();
+
+	spinlock_t mLock = SPIN_LOCK_UNLOCK;
+	//lock
+	spin_lock_irq(&mLock);
 	MurmurHash3_x64_128(data, (int)len, 41, result);
-	rcu_read_unlock();
+	spin_unlock_irq(&mLock);
+	//unlock
 	
 	return true;
 }
