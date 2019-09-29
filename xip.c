@@ -19,15 +19,7 @@
 #include "pmfs.h"
 #include "xip.h"
 /*dedup new add include*/
-#include <linux/kernel.h>
-// #include <linux/module.h>
-// #include <linux/crypto.h>
-// #include <crypto/hash.h>
-// #include <linux/spinlock.h>
-// #include <linux/scatterlist.h>
-// #include <linux/err.h>
-
-
+// #include <linux/kernel.h>
 #include "dedup.c"
 #include "murmur3.h"
 
@@ -39,17 +31,13 @@
 DEFINE_SPINLOCK(dedup_index_lock);
 DEFINE_SPINLOCK(dnode_rbtree_lock);
 
-// static LIST_HEAD(hash_map_addr_list);
-// struct list_head *last_hit;
-// struct list_head *new_list = &hash_map_addr_list;
+
 struct list_head *dedupnode_allocation_pos = NULL;
-// char dedup_model = 0xFF;
 short dnode_hit = 0;
 bool rnode_hit = false;
 struct list_head *last_dnode_list;
 struct list_head *last_rnode_list;
 bool filesystem_restart = true;
-// struct rb_root root = RB_ROOT;
 bool local_hit = false;
 long circle_count = 0;
 
@@ -290,27 +278,6 @@ struct refnode *refnode_search(struct super_block *sb
 
 bool short_hash(size_t *hashing, char *xmem, size_t len)
 {
-	// size_t tail = len & (sizeof(size_t)-1);
-	// size_t k;//,hash_offset=0;
-
-	// size_t thin_internal = len >> 10;
-	// size_t thick_internal_count = (len&1023) >> 3;
-
-	// *hashing = 0;
-				 
-	// if(tail != 0)
-	// 	memcpy(hashing, xmem+tail, tail);
-
-	// for(k=0;k+<circ_count;k++){
-	// 	*hashing += *(size_t*)(xmem + k);
-	// 	*hashing += (*hashing << 1);
-	// 	*hashing ^= (*hashing >> 2);
-	// 	if(thick_internal_count-->0){
-	// 		k += sizeof(size_t);
-	// 	}
-	// 	k += (thin_internal<<3);
-	// }
-
 	size_t tail = len & (31);
 	size_t k;//,hash_offset=0;
 
@@ -341,7 +308,6 @@ bool short_hash(size_t *hashing, char *xmem, size_t len)
 		c4 += c4 >> 2;
 	}
 	*hashing += c1 + c2 + c3 + c4;
-
 	return true;
 }
 
