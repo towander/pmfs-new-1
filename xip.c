@@ -282,6 +282,7 @@ bool short_hash(size_t *hashing, char *xmem, size_t len)
 	size_t k;//,hash_offset=0;
 
 	int circ_count = len>>5;
+	int i = 0;
 
 	u64 c1 = 0x4f099b8a5b93ddbf;
 	u64 c2 = 0x6b6b2be3bc858e13;
@@ -293,7 +294,8 @@ bool short_hash(size_t *hashing, char *xmem, size_t len)
 		circ_count--;
 	}
 
-	for(k=0;k<circ_count;k+=4){
+	for(k=0;k<circ_count;i++){
+		k = 4 << i
 		c1 += *(u64*)(xmem + k + 1);
 		c1 ^= c1 << 1;
 		c1 += c1 >> 2;
