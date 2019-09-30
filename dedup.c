@@ -61,7 +61,8 @@ struct dedup_index{
     struct list_head ref_unused;
     struct rb_root refroot;
     unsigned long update_flags;
-    spinlock_t mLock = SPIN_LOCK_UNLOCK;
+    spinlock_t mLock;
+    u8 flag;
 };
 
 struct dedup_rbtree_index{
