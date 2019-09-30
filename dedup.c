@@ -67,6 +67,7 @@ struct dedup_rbtree_index{
     void *next;
     struct rb_root ref_root;
     struct rb_root dnode_root;
+    spinlock_t mLock = SPIN_LOCK_UNLOCK;
 };
 
 struct rbtree_node{
