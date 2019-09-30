@@ -90,19 +90,19 @@ struct dedupnode *alloc_dedupnode(struct super_block *sb){
 	struct dedup_index *dindex = DINDEX;
 
 	//list_lock
-	spin_lock_irq(&mLock);
+	spin_lock_irq(&dindex->mLock);
 	if(list_empty(&dindex->hma_unused))
 		new_unused_dedupnode(sb);
-	spin_unlock_irq(&mLock);
+	spin_unlock_irq(&dindex->mLock);
 	//list_unlock
 
 	//list_lock
-	spin_lock_irq(&mLock);
+	spin_lock_irq(&dindex->mLock);
 	p = dindex->hma_unused.next;
 	dnode = list_entry(p, struct dedupnode, list);
 	dnode->flag = 0;
 	list_move_tail(p, &dindex->hma_head);
-	spin_unlock_irq(&mLock);
+	spin_unlock_irq(&dindex->mLock);
 	//list_unlock
 	return dnode;
 }
@@ -354,11 +354,12 @@ bool strength_hash(char *result, char* data, size_t len){
 	/*weak hash*/
 
 	// memcpy(result+16,data,16);
+	struct dedup_index *dindex = DINDEX;
 
 	//lock
-	spin_lock_irq(&mLock);
+	spin_unlock_irq(&dindex->mLock);	
 	MurmurHash3_x64_128(data, (int)len, 41, result);
-	spin_unlock_irq(&mLock);
+	spin_unlock_irq(&dindex->mLock);
 	//unlock
 	
 	return true;
