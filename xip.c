@@ -31,6 +31,7 @@
 DEFINE_SPINLOCK(dedup_index_lock);
 DEFINE_SPINLOCK(dnode_rbtree_lock);
 DEFINE_SPINLOCK(BIG_LOCK);
+spinlock_t mLock = SPIN_LOCK_UNLOCK;
 
 struct list_head *dedupnode_allocation_pos = NULL;
 short dnode_hit = 0;
@@ -87,7 +88,6 @@ struct dedupnode *alloc_dedupnode(struct super_block *sb){
 	struct dedupnode *dnode;
 	struct list_head *p;
 	struct dedup_index *dindex = DINDEX;
-	spinlock_t mLock = SPIN_LOCK_UNLOCK;
 
 	//list_lock
 	spin_lock_irq(&mLock);
@@ -355,7 +355,6 @@ bool strength_hash(char *result, char* data, size_t len){
 
 	// memcpy(result+16,data,16);
 
-	spinlock_t mLock = SPIN_LOCK_UNLOCK;
 	//lock
 	spin_lock_irq(&mLock);
 	MurmurHash3_x64_128(data, (int)len, 41, result);
