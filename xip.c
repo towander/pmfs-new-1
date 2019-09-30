@@ -87,21 +87,22 @@ struct dedupnode *alloc_dedupnode(struct super_block *sb){
 	struct dedupnode *dnode;
 	struct list_head *p;
 	struct dedup_index *dindex = DINDEX;
+	spinlock_t mLock = SPIN_LOCK_UNLOCK;
 
 	//list_lock
-	rcu_read_lock();
+	spin_lock_irq(&mLock);
 	if(list_empty(&dindex->hma_unused))
 		new_unused_dedupnode(sb);
-	rcu_read_unlock();
+	spin_unlock_irq(&mLock);
 	//list_unlock
 
 	//list_lock
-	rcu_read_lock();
+	spin_lock_irq(&mLock);
 	p = dindex->hma_unused.next;
 	dnode = list_entry(p, struct dedupnode, list);
 	dnode->flag = 0;
 	list_move_tail(p, &dindex->hma_head);
-	rcu_read_unlock();
+	spin_unlock_irq(&mLock);
 	//list_unlock
 	return dnode;
 }
