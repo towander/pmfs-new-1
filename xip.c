@@ -202,8 +202,9 @@ struct dedupnode *dedupnode_tree_update(struct super_block *sb
 	}
 
 	rb_link_node(&dnode_new->node, parent, entry_node);
+	spin_lock_irq(&dindex->mLock);
 	rb_insert_color(&dnode_new->node, droot);
-
+	spin_unlock_irq(&dindex->mLock);
 	return NULL;
 }
 
