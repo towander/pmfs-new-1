@@ -253,7 +253,9 @@ struct refnode *refnode_insert(struct super_block *sb, unsigned long ino
 	// printk("refnode insert 1");
 	rb_link_node(&rnode_new->node, parent, entry_node);
 	// spin_lock_irq(&dindex->mLock);
+	spin_lock_irq(&dindex->rootLock);
 	rb_insert_color(&rnode_new->node, rroot);
+	spin_unlock_irq(&dindex->rootLock);
 	// spin_unlock_irq(&dindex->mLock);
 	
 	return rnode_new;
@@ -1034,7 +1036,9 @@ ssize_t pmfs_xip_file_write(struct file *filp, const char __user *buf,
 		}
 		rb_link_node(&dnode->node, parent, entry_node);
 		// spin_lock_irq(&dindex->mLock);
+		spin_lock_irq(&dindex->rootLock);
 		rb_insert_color(&dnode->node, droot);
+		spin_unlock_irq(&dindex->rootLock);
 		// spin_unlock_irq(&dindex->mLock);
 		dnode_entry = NULL;
 
