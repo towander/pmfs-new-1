@@ -62,6 +62,7 @@ struct dedup_index{
     struct rb_root refroot;
     unsigned long update_flags;
     spinlock_t mLock;
+    spinlock_t rootLock = SPIN_LOCK_UNLOCK;
     u8 flag;
 };
 
@@ -69,12 +70,13 @@ struct dedup_rbtree_index{
     void *next;
     struct rb_root ref_root;
     struct rb_root dnode_root;
-    spinlock_t mLock = SPIN_LOCK_UNLOCK;
+    spinlock_t rootLock = SPIN_LOCK_UNLOCK;
 };
 
 struct rbtree_node{
     void *data;
     struct rb_node node;
+    spinlock_t nodeLock = SPIN_LOCK_UNLOCK;
 };
 // struct dedupnode_onlydata{
 //     size_t hashval;
